@@ -1,11 +1,51 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import '../CSS/ProductDetail.css'; // Make sure to create this CSS file
-
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 const ProductDetail = () => {
+    const [productName, setProductName] = useState("");
+    const [productDescription, setProductDescription] = useState("");
+    const [productPrice, setProductPrice] = useState(0);
+    const [stockQuantity, setStockQuantity] = useState(0);
+    const [Category, setCategory] = useState("");
+    const [VentorDetails, setVentorDetails] = useState("");
+    const [productUrl, setProductUrl] = useState("");
     const [quantity, setQuantity] = useState(1);
-    const [inStock, setInStock] = useState(false);  // For In Stock feature
+    const [vendor, setVendor] = useState("");
+    const [inStock, setInStock] = useState(true);  // For In Stock feature
     const [offer, setOffer] = useState("10% Off"); // For Offers feature
     const originalPrice = 29.99; // Original price per kg
+    const { id } = useParams();
+    useEffect(() => {
+        // Fetch product details from the backend
+        axios.get(`http://localhost:4000/products_find/${id}`)
+            .then(response => {
+                const product = response.data;
+                console.log(product)
+                setProductName(product.name);
+                setProductDescription(product.description);
+                setProductPrice(product.price);
+                // console.log(product.price)
+                setCategory(product.category);
+                setStockQuantity(product.quantity);
+                setVentorDetails(product.vendor_details);
+                setProductUrl(product.image_url);
+                
+                // console.log(product.name)
+                // console.log(product.description)
+                // setProductPrice(product.price);
+                // setStockQuantity(product.stockQuantity);
+                // setProductImage(product.image);
+                // setInStock(product.inStock);
+                // setOffer(product.offer);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    }, []);
+
+
 
     // Calculate discount from the offer
     const calculateDiscountedPrice = (price, offer) => {
@@ -34,11 +74,11 @@ const ProductDetail = () => {
                     <a href="/">Home</a>
                     <div className="dropdown">
                         <a href="#">Products</a>
-                        <div className="dropdown-content">
+                        {/* <div className="dropdown-content">
                             <a href="#">Vegetables</a>
                             <a href="#">Fruits</a>
                             <a href="#">Seeds</a>
-                        </div>
+                        </div> */}
                     </div>
                     <a href="#">Offers</a>
                     <a href="#">Contact</a>
@@ -48,10 +88,10 @@ const ProductDetail = () => {
             </header>
         <div className="product-detail">
             <div className="product-image">
-                <img src="https://images.pexels.com/photos/144248/potatoes-vegetables-erdfrucht-bio-144248.jpeg" alt="Product" />
+                <img src={productUrl} alt="Product" />
             </div>
             <div className="product-info">
-                <h1 className="product-name">Potato</h1>
+                <h1 className="product-name">{productName}</h1>
 
                 {/* In Stock Indicator */}
                 <p className="product-stock">{inStock ? "In Stock" : "Out of Stock"}</p>
@@ -70,18 +110,16 @@ const ProductDetail = () => {
 
                 {/* Display Original and Discounted Price */}
                 <p className="product-price">
-                    Original Price: <span className="original-price">${originalPrice}/Kg</span> <br/>
-                    Discounted Price: <span className="discounted-price">${discountedPrice}/Kg</span>
+                    Original Price: <span className="original-price">{productPrice}/Kg</span> <br/>
+                    Discounted Price: <span className="discounted-price">Rs{discountedPrice}/Kg</span>
                 </p>
 
                 <p className="product-description"><strong>Description: </strong>
                 <span>
-                    Potatoes are high in vitamin C, an antioxidant. Potassium, an electrolyte that helps our heart, muscles, and nervous system, is another important mineral in potatoes. The fiber, potassium, vitamin C, and vitamin B6 content of potatoes, together with their absence of cholesterol, all promote heart health. The fiber content of potatoes is high. Fiber reduces the total quantity of cholesterol in the blood, lowering the risk of heart disease.
-                    <br/><br/>Country of Origin : India
-                    <br/><br/>Shelf Life : 4 days
+                    {productDescription}
                 </span></p>
-                <p className="product-vendor">Vendor Details: <span>Vendor Name, Vendor Address</span></p>
-                <p className="product-category">Category: <span>Electronics</span></p>
+                <p className="product-vendor">Vendor Details: <span>{VentorDetails}</span></p>
+                <p className="product-category">Category: <span>{Category}</span></p>
                 <p className="product-rating">Rating: <span>4.5/5</span></p>
             </div>
         </div>
